@@ -3,6 +3,8 @@
 A simple web app built with **Vue.js** that lets you transform normal text into stylized Unicode variants — bold, cursive, double-struck, monospace, and more.
 Includes a secondary text editor that can apply these same styles to highlighted text, plus light/dark mode support (saved per session).
 
+🔗 Try it here: https://jrequiroso.github.io/text-formatter/
+
 ---
 
 ## ✨ Features

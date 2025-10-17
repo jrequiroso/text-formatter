@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text Formatter by John Req</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+</head>
+<body :class="theme">
+    <div id="app">
+        <header>
+            <h1>Text Formatter</h1>
+            <button @click="toggleTheme">
+                {{ theme === 'dark' ? '🌙 Dark' : '☀️ Light' }}
+            </button>
+        </header>
+
+        <div id="tab-controls-container">
+            <button class="tab" :class="{'active': active_tab == 'formatter'}" @click="active_tab = 'formatter'">Text Formatter</button>
+            <button class="tab" :class="{'active': active_tab == 'editor'}" @click="active_tab = 'editor'">Text Editor</button>
+        </div>
+
+        <div id="text-formatter-container" v-if="active_tab == 'formatter'">
+
+            <div id="text-formatter-input-container">
+                <textarea v-model="input" spellcheck="false" placeholder="Type something..."></textarea>
+            </div>
+
+            <div class="output" v-for="(variant, name) in variants" :key="name">
+                <div class="variant-header">
+                    <h5>{{ name }}</h3>
+                    <button @click="copyToClipboard(transform(input, variant), name)">
+                        {{ copied === name ? 'Copied!' : 'Copy' }}
+                    </button>
+                </div>
+                <p>{{ transform(input, variant) }}</p>
+            </div>
+
+        </div>
+
+        <div id="text-editor-container" v-if="active_tab == 'editor'">
+            <div class="toolbar">
+                <button
+                    class="text-format"
+                    v-for="(map, name) in variants"
+                    :key="name"
+                    :value="name"
+                    @click="applyStyleToSelection(name)"
+                >
+                    {{ transform(name, map) }}
+                </button>
+            </div>
+
+            <textarea class="long-editor" v-model="editor_input" spellcheck="false" placeholder="Type and highlight text, then apply style." cols="40"></textarea>
+            <button @click="copyToClipboard(editor_input, null, true)">{{ editorCopied ? 'Copied!' : 'Copy' }}</button>
+        </div>
+
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>

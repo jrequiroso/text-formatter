@@ -104,16 +104,21 @@ createApp({
             const textarea = document.querySelector('#text-editor-container textarea');
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
-            if (start === end) return;
-            const before = this.input.substring(0, start);
-            const selected = this.input.substring(start, end);
-            const after = this.input.substring(end);
+
+            if (start === end) return; // nothing selected
+
+            const before = this.editor_input.substring(0, start);
+            const selected = this.editor_input.substring(start, end);
+            const after = this.editor_input.substring(end);
+
             const styled = this.transform(selected, this.variants[styleName]);
-            this.input = before + styled + after;
+            this.editor_input = before + styled + after;
+
             this.$nextTick(() => {
                 textarea.focus();
                 textarea.selectionStart = textarea.selectionEnd = start + styled.length;
             });
         }
+
     }
 }).mount('#app');

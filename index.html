@@ -52,7 +52,10 @@
             </div>
 
             <textarea class="long-editor" v-model="editor_input" spellcheck="false" placeholder="Type and highlight text, then apply style." cols="40"></textarea>
-            <button @click="copyToClipboard(editor_input, null, true)">{{ editorCopied ? 'Copied!' : 'Copy' }}</button>
+            <div class="toolbar-wide">
+                <button @click="copyToClipboard(editor_input, null, true)">{{ editorCopied ? 'Copied!' : 'Copy' }}</button>
+                <button @click="resetFormatting">Reset</button>
+            </div>
         </div>
 
     </div>

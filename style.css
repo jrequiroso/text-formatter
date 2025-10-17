@@ -119,6 +119,12 @@ button:hover {
   height: 100vh;
 }
 
+#text-editor-container .toolbar-wide {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 #text-editor-container .toolbar {
     display: flex;
     flex-direction: row;

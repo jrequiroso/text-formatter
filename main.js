@@ -100,18 +100,34 @@ createApp({
             document.body.classList.toggle('dark', this.theme === 'dark');
             sessionStorage.setItem('theme', this.theme);
         },
+        normalizeToPlain(text) {
+            for (const map of Object.values(this.variants)) {
+                for (const [plain, styled] of Object.entries(map)) {
+                    if (styled) {
+                        text = text.replaceAll(styled, plain);
+                    }
+                }
+            }
+            return text;
+        },
+        resetFormatting() {
+            this.editor_input = this.normalizeToPlain(this.editor_input);
+        },
         applyStyleToSelection(styleName) {
             const textarea = document.querySelector('#text-editor-container textarea');
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
 
-            if (start === end) return; // nothing selected
+            if (start === end) return;
 
             const before = this.editor_input.substring(0, start);
             const selected = this.editor_input.substring(start, end);
             const after = this.editor_input.substring(end);
 
-            const styled = this.transform(selected, this.variants[styleName]);
+            // 🧹 Normalize before applying new style
+            const normalized = this.normalizeToPlain(selected);
+            const styled = this.transform(normalized, this.variants[styleName]);
+
             this.editor_input = before + styled + after;
 
             this.$nextTick(() => {

@@ -33,7 +33,7 @@
                         {{ copied === name ? 'Copied!' : 'Copy' }}
                     </button>
                 </div>
-                <p>{{ transform(input, variant) }}</p>
+                <pre>{{ transform(input, variant) }}</pre>
             </div>
 
         </div>
@@ -50,11 +50,15 @@
                     {{ transform(name, map) }}
                 </button>
             </div>
+            <div class="toolbar">
+                <button class="text-format" @click="removeFormatFromSelection">Remove Format</button>
+            </div>
 
             <textarea class="long-editor" v-model="editor_input" spellcheck="false" placeholder="Type and highlight text, then apply style." cols="40"></textarea>
+
             <div class="toolbar-wide">
                 <button @click="copyToClipboard(editor_input, null, true)">{{ editorCopied ? 'Copied!' : 'Copy' }}</button>
-                <button @click="resetFormatting">Reset</button>
+                <button @click="resetFormatting">Reset all</button>
             </div>
         </div>
 

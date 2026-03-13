@@ -10,6 +10,9 @@ Live demo: https://jrequiroso.github.io/text-formatter/
 
 - Unicode formatter with multiple style variants
 - Text editor mode with selection-based formatting
+- Case presets for common naming and sentence styles
+- Undo/redo support for editor changes
+- Keyboard shortcuts for bold/italic typing mode in the editor
 - Remove-format action for selected text or full text reset
 - Light and dark theme toggle (stored in session storage)
 - One-click copy for each formatted output and editor content
@@ -17,8 +20,11 @@ Live demo: https://jrequiroso.github.io/text-formatter/
 ## Project Structure
 
 - `index.html`: app shell and Vue templates
-- `main.js`: transformation logic and Vue app state
+- `formatter-core.js`: shared Unicode transform and case-preset logic
+- `main.js`: Vue app state and editor interactions
+- `package.json`: test script configuration
 - `style.css`: theme and layout styles
+- `test/formatter-core.test.js`: unit tests for happy and unhappy paths
 
 ## Run Locally
 
@@ -40,6 +46,17 @@ Option 2 (VS Code Live Server):
 ## Build
 
 No build step is required in the current setup.
+
+## Testing
+
+Run the unit tests with:
+
+```bash
+npm test
+```
+
+Use a modern Node.js version that supports the built-in test runner. Node 20+
+is recommended.
 
 ## Deploy
 

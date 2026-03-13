@@ -1,181 +1,368 @@
 const { createApp } = Vue;
-
-function addDigits(map, start) {
-    const digits = '0123456789';
-    for (let i = 0; i < 10; i++) {
-        map[digits[i]] = String.fromCodePoint(start + i);
-    }
-    return map;
-}
-
-function genMap(upperStart, lowerStart) {
-    const map = {};
-    for (let i = 0; i < 26; i++) {
-        map[String.fromCharCode(65 + i)] = String.fromCodePoint(upperStart + i);
-        map[String.fromCharCode(97 + i)] = String.fromCodePoint(lowerStart + i);
-    }
-    return map;
-}
-
-function genBubbleMap() {
-    const map = {};
-    const upperStart = 0x24B6; // Ⓐ
-    const lowerStart = 0x24D0; // ⓐ
-    for (let i = 0; i < 26; i++) {
-        map[String.fromCharCode(65 + i)] = String.fromCodePoint(upperStart + i);
-        map[String.fromCharCode(97 + i)] = String.fromCodePoint(lowerStart + i);
-    }
-    const digits = '0123456789';
-    const bubbles = ['⓪','①','②','③','④','⑤','⑥','⑦','⑧','⑨'];
-    digits.split('').forEach((d, i) => (map[d] = bubbles[i]));
-    return map;
-}
-
-function genDarkBubbleMap() {
-    const map = {};
-    const upperStart = 0x1F150; // 🅐
-    for (let i = 0; i < 26; i++) {
-        const char = String.fromCodePoint(upperStart + i);
-        map[String.fromCharCode(65 + i)] = char;
-        map[String.fromCharCode(97 + i)] = char;
-    }
-    const digits = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⓪'];
-    '0123456789'.split('').forEach((d, i) => (map[d] = digits[i]));
-    return map;
-}
-
-const scriptMap = {
-    A: '𝒜', B: 'ℬ', C: '𝒞', D: '𝒟', E: 'ℰ', F: 'ℱ', G: '𝒢',
-    H: 'ℋ', I: 'ℐ', J: '𝒥', K: '𝒦', L: 'ℒ', M: 'ℳ', N: '𝒩',
-    O: '𝒪', P: '𝒫', Q: '𝒬', R: 'ℛ', S: '𝒮', T: '𝒯', U: '𝒰',
-    V: '𝒱', W: '𝒲', X: '𝒳', Y: '𝒴', Z: '𝒵',
-    a: '𝒶', b: '𝒷', c: '𝒸', d: '𝒹', e: 'ℯ', f: '𝒻', g: 'ℊ',
-    h: '𝒽', i: '𝒾', j: '𝒿', k: '𝓀', l: '𝓁', m: '𝓂', n: '𝓃',
-    o: '𝓸', p: '𝓅', q: '𝓆', r: '𝓇', s: '𝓈', t: '𝓉', u: '𝓊',
-    v: '𝓋', w: '𝓌', x: '𝓍', y: '𝓎', z: '𝓏'
-};
+const {
+    applyCasePresetToText,
+    casePresets,
+    normalizeToPlainText,
+    transformText,
+    variants
+} = TextFormatterCore;
 
 createApp({
     data() {
         return {
-            input: '',
-            editor_input: '',
-            activeFormat: null,
+            input: "",
+            editor_input: "",
             copied: null,
             editorCopied: false,
-            theme: sessionStorage.getItem('theme') || 'light',
-            active_tab: 'formatter',
-            previewText: 'AaBb',
-            variants: {
-                'Bold (Serif)': addDigits(genMap(0x1D400, 0x1D41A), 0x1D7CE),
-                'Italic (Serif)': Object.assign(genMap(0x1D434, 0x1D44E), { h: 'ℎ' }), // no italic digits exist
-                'Bold Italic (Serif)': genMap(0x1D468, 0x1D482), // no digits exist here either
-                'Bold (Sans)': addDigits(genMap(0x1D5D4, 0x1D5EE), 0x1D7EC),
-                'Italic (Sans)': genMap(0x1D608, 0x1D622), // no italic sans digits exist
-                'Bold Italic (Sans)': genMap(0x1D63C, 0x1D656), // no digits exist
-                'Double-Struck': {
-                    A: '𝔸', B: '𝔹', C: 'ℂ', D: '𝔻', E: '𝔼', F: '𝔽', G: '𝔾',
-                    H: 'ℍ', I: '𝕀', J: '𝕁', K: '𝕂', L: '𝕃', M: '𝕄', N: 'ℕ',
-                    O: '𝕆', P: 'ℙ', Q: 'ℚ', R: 'ℝ', S: '𝕊', T: '𝕋', U: '𝕌',
-                    V: '𝕍', W: '𝕎', X: '𝕏', Y: '𝕐', Z: 'ℤ',
-
-                    a: '𝕒', b: '𝕓', c: '𝕔', d: '𝕕', e: '𝕖', f: '𝕗', g: '𝕘',
-                    h: '𝕙', i: '𝕚', j: '𝕛', k: '𝕜', l: '𝕝', m: '𝕞', n: '𝕟',
-                    o: '𝕠', p: '𝕡', q: '𝕢', r: '𝕣', s: '𝕤', t: '𝕥', u: '𝕦',
-                    v: '𝕧', w: '𝕨', x: '𝕩', y: '𝕪', z: '𝕫',
-
-                    '0': '𝟘', '1': '𝟙', '2': '𝟚', '3': '𝟛', '4': '𝟜',
-                    '5': '𝟝', '6': '𝟞', '7': '𝟟', '8': '𝟠', '9': '𝟡'
-                },
-                'Monospace': addDigits(genMap(0x1D670, 0x1D68A), 0x1D7F6),
-                'Sans Serif': addDigits(genMap(0x1D5A0, 0x1D5BA), 0x1D7E2),
-                'Script (Cursive)': Object.assign({}, scriptMap), // no script digits exist
-                'Bold Script': genMap(0x1D4D0, 0x1D4EA), // no digits exist
-                'Bubble': genBubbleMap(),
-                'Dark Bubble': genDarkBubbleMap(),
-            },
+            theme: sessionStorage.getItem("theme") || "light",
+            active_tab: "formatter",
+            variants,
+            casePresets,
+            editorSelectionLength: 0,
+            history: [],
+            historyIndex: -1,
+            suppressNextInputHistory: false,
+            activeTypingStyle: null
         };
     },
+    computed: {
+        formattedVariants() {
+            const formatted = {};
+            Object.entries(this.variants).forEach(([name, map]) => {
+                formatted[name] = this.transform(this.input, map);
+            });
+            return formatted;
+        },
+        editorScopeHint() {
+            const selectionHint = this.editorSelectionLength > 0
+                ? `Applies to selected text (${this.editorSelectionLength} chars).`
+                : "No text selected. Case presets and Remove/Reset apply to all text.";
+
+            if (this.activeTypingStyle) {
+                return `${selectionHint} Typing mode: ${this.activeTypingStyle}.`;
+            }
+            return `${selectionHint} Ctrl+B or Ctrl+I with no selection toggles typing mode.`;
+        },
+        canUndo() {
+            return this.historyIndex > 0;
+        },
+        canRedo() {
+            return this.historyIndex >= 0 && this.historyIndex < this.history.length - 1;
+        }
+    },
     mounted() {
-        document.body.classList.toggle('dark', this.theme === 'dark');
+        this.applyThemeClass();
+        this.$nextTick(() => {
+            this.updateSelectionFromTextarea();
+            this.pushHistorySnapshot(this.captureEditorSnapshot(), true);
+        });
     },
     methods: {
-
-        toggleFormat(name) {
-            this.activeFormat = this.activeFormat === name ? null : name;
+        applyThemeClass() {
+            document.body.classList.toggle("dark", this.theme === "dark");
         },
-        handleTyping(e) {
-            if (!this.activeFormat) return;
-            const textarea = e.target;
-            const pos = textarea.selectionStart;
-            const char = this.editor_input.charAt(pos - 1);
-            const transformed = this.transform(char, this.variants[this.activeFormat]);
-            if (char !== transformed) {
-            this.editor_input =
-                this.editor_input.slice(0, pos - 1) + transformed + this.editor_input.slice(pos);
-            textarea.selectionStart = textarea.selectionEnd = pos;
+        handleEditorBeforeInput(event) {
+            if (!this.activeTypingStyle) {
+                return;
+            }
+
+            if (event.ctrlKey || event.metaKey || event.altKey) {
+                return;
+            }
+
+            const shouldTransformInput =
+                event.inputType === "insertText" ||
+                event.inputType === "insertCompositionText";
+
+            if (!shouldTransformInput || typeof event.data !== "string" || event.data.length === 0) {
+                return;
+            }
+
+            event.preventDefault();
+            this.insertStyledText(event.data, this.activeTypingStyle);
+        },
+        handleEditorKeydown(event) {
+            const isModifier = event.ctrlKey || event.metaKey;
+            if (!isModifier || event.altKey) {
+                if (event.key === "Escape" && this.activeTypingStyle) {
+                    this.activeTypingStyle = null;
+                }
+                return;
+            }
+
+            const key = event.key.toLowerCase();
+            if (key === "z" && !event.shiftKey) {
+                event.preventDefault();
+                this.undoEditor();
+                return;
+            }
+
+            if (key === "y" || (key === "z" && event.shiftKey)) {
+                event.preventDefault();
+                this.redoEditor();
+                return;
+            }
+
+            if (key === "b") {
+                event.preventDefault();
+                this.handleStyleShortcut("Bold (Sans)");
+                return;
+            }
+
+            if (key === "i") {
+                event.preventDefault();
+                this.handleStyleShortcut("Italic (Sans)");
             }
         },
+        handleStyleShortcut(styleName) {
+            const textarea = this.$refs.editorTextarea;
+            if (!textarea) {
+                return;
+            }
+
+            const hasSelection = textarea.selectionStart !== textarea.selectionEnd;
+            if (hasSelection) {
+                this.toggleStyleForSelection(styleName);
+                return;
+            }
+
+            this.activeTypingStyle = this.activeTypingStyle === styleName ? null : styleName;
+        },
+        toggleStyleForSelection(styleName) {
+            this.applyTransformToEditor((text) => {
+                const normalized = this.normalizeToPlain(text);
+                const styled = this.transform(normalized, this.variants[styleName]);
+                return text === styled ? normalized : styled;
+            }, false);
+        },
+        insertStyledText(text, styleName) {
+            const textarea = this.$refs.editorTextarea;
+            if (!textarea || !this.variants[styleName]) {
+                return;
+            }
+
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const transformed = this.transform(this.normalizeToPlain(text), this.variants[styleName]);
+
+            const scrollTop = textarea.scrollTop;
+            this.suppressNextInputHistory = true;
+            textarea.setRangeText(transformed, start, end, "end");
+            this.editor_input = textarea.value;
+            textarea.scrollTop = scrollTop;
+            textarea.focus();
+            this.updateSelectionFromTextarea(textarea);
+            this.pushHistorySnapshot(this.captureEditorSnapshot());
+        },
+        captureEditorSnapshot() {
+            const textarea = this.$refs.editorTextarea;
+            const text = this.editor_input || "";
+            if (!textarea) {
+                return {
+                    text,
+                    selectionStart: 0,
+                    selectionEnd: 0
+                };
+            }
+
+            return {
+                text,
+                selectionStart: textarea.selectionStart,
+                selectionEnd: textarea.selectionEnd
+            };
+        },
+        pushHistorySnapshot(snapshot, force = false) {
+            if (!snapshot) {
+                return;
+            }
+
+            const current = this.history[this.historyIndex];
+            if (!force && current && current.text === snapshot.text) {
+                this.history[this.historyIndex] = snapshot;
+                return;
+            }
+
+            if (this.historyIndex < this.history.length - 1) {
+                this.history = this.history.slice(0, this.historyIndex + 1);
+            }
+
+            this.history.push(snapshot);
+            const maxHistory = 100;
+            if (this.history.length > maxHistory) {
+                this.history.shift();
+            }
+            this.historyIndex = this.history.length - 1;
+        },
+        applySnapshot(snapshot) {
+            if (!snapshot) {
+                return;
+            }
+
+            this.editor_input = snapshot.text;
+            this.$nextTick(() => {
+                const textarea = this.$refs.editorTextarea;
+                if (!textarea) {
+                    return;
+                }
+
+                textarea.value = snapshot.text;
+                const limit = snapshot.text.length;
+                textarea.selectionStart = Math.min(snapshot.selectionStart, limit);
+                textarea.selectionEnd = Math.min(snapshot.selectionEnd, limit);
+                textarea.focus();
+                this.updateSelectionFromTextarea(textarea);
+                this.suppressNextInputHistory = false;
+            });
+        },
+        undoEditor() {
+            if (!this.canUndo) {
+                return;
+            }
+
+            this.historyIndex -= 1;
+            this.applySnapshot(this.history[this.historyIndex]);
+        },
+        redoEditor() {
+            if (!this.canRedo) {
+                return;
+            }
+
+            this.historyIndex += 1;
+            this.applySnapshot(this.history[this.historyIndex]);
+        },
+        updateSelectionFromTextarea(textarea = null) {
+            const target = textarea || this.$refs.editorTextarea;
+            if (!target) {
+                this.editorSelectionLength = 0;
+                return;
+            }
+            this.editorSelectionLength = Math.max(0, target.selectionEnd - target.selectionStart);
+        },
+        updateSelectionFromEvent(event) {
+            this.updateSelectionFromTextarea(event.target);
+        },
+        handleEditorInput(event) {
+            this.updateSelectionFromTextarea(event.target);
+            if (this.suppressNextInputHistory) {
+                this.suppressNextInputHistory = false;
+                return;
+            }
+            this.pushHistorySnapshot(this.captureEditorSnapshot());
+        },
         transform(text, map) {
-            return text.split('').map(ch => map[ch] || ch).join('');
+            return transformText(text, map);
         },
         async copyToClipboard(text, variantName = null, isEditor = false) {
             try {
                 await navigator.clipboard.writeText(text);
                 if (isEditor) {
                     this.editorCopied = true;
-                    setTimeout(() => (this.editorCopied = false), 1500);
+                    setTimeout(() => {
+                        this.editorCopied = false;
+                    }, 1500);
                 } else {
                     this.copied = variantName;
-                    setTimeout(() => (this.copied = null), 1500);
+                    setTimeout(() => {
+                        this.copied = null;
+                    }, 1500);
                 }
-            } catch (err) {
-                console.error('Clipboard copy failed:', err);
+            } catch (error) {
+                console.error("Clipboard copy failed:", error);
             }
         },
         toggleTheme() {
-            this.theme = this.theme === 'dark' ? 'light' : 'dark';
-            document.body.classList.toggle('dark', this.theme === 'dark');
-            sessionStorage.setItem('theme', this.theme);
+            this.theme = this.theme === "dark" ? "light" : "dark";
+            this.applyThemeClass();
+            sessionStorage.setItem("theme", this.theme);
         },
         normalizeToPlain(text) {
-            for (const map of Object.values(this.variants)) {
-                for (const [plain, styled] of Object.entries(map)) {
-                    if (styled) {
-                        text = text.replaceAll(styled, plain);
-                    }
-                }
-            }
-            return text;
+            return normalizeToPlainText(text);
         },
         resetFormatting() {
-            this.editor_input = this.normalizeToPlain(this.editor_input);
+            this.applyTransformToAllEditorText((text) => this.normalizeToPlain(text));
         },
-        replaceSelection(styleName = null) {
-            const textarea = document.querySelector('#text-editor-container textarea');
-            if (!textarea) return;
+        applyTransformToAllEditorText(transformer) {
+            const textarea = this.$refs.editorTextarea;
+            if (!textarea || typeof transformer !== "function") {
+                return;
+            }
 
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
-            if (start === end) return;
-
-            const selected = textarea.value.substring(start, end);
-            const normalized = this.normalizeToPlain(selected);
-            const newText = styleName ? this.transform(normalized, this.variants[styleName]) : normalized;
-
-            const scrollTop = textarea.scrollTop;
-            textarea.setRangeText(newText, start, end, 'end');
-            this.editor_input = textarea.value;
-            textarea.scrollTop = scrollTop;
+            this.suppressNextInputHistory = true;
+            this.editor_input = transformer(textarea.value);
+            textarea.value = this.editor_input;
+            textarea.selectionStart = start;
+            textarea.selectionEnd = end;
             textarea.focus();
+            this.updateSelectionFromTextarea(textarea);
+            this.pushHistorySnapshot(this.captureEditorSnapshot());
+            this.suppressNextInputHistory = false;
+        },
+        applyTransformToEditor(transformer, applyOnAllWhenNoSelection = false) {
+            const textarea = this.$refs.editorTextarea;
+            if (!textarea || typeof transformer !== "function") {
+                return;
+            }
+
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const hasSelection = start !== end;
+
+            if (!hasSelection && !applyOnAllWhenNoSelection) {
+                return;
+            }
+
+            if (hasSelection) {
+                const selected = textarea.value.slice(start, end);
+                const newText = transformer(selected);
+                const scrollTop = textarea.scrollTop;
+                this.suppressNextInputHistory = true;
+                textarea.setRangeText(newText, start, end, "end");
+                this.editor_input = textarea.value;
+                textarea.scrollTop = scrollTop;
+                textarea.focus();
+                this.updateSelectionFromTextarea(textarea);
+                this.pushHistorySnapshot(this.captureEditorSnapshot());
+                return;
+            }
+
+            const normalizedStart = textarea.selectionStart;
+            const normalizedEnd = textarea.selectionEnd;
+            this.suppressNextInputHistory = true;
+            this.editor_input = transformer(textarea.value);
+            textarea.value = this.editor_input;
+            textarea.selectionStart = normalizedStart;
+            textarea.selectionEnd = normalizedEnd;
+            textarea.focus();
+            this.updateSelectionFromTextarea(textarea);
+            this.pushHistorySnapshot(this.captureEditorSnapshot());
+            this.suppressNextInputHistory = false;
+        },
+        replaceSelection(styleName = null, applyOnAllWhenNoSelection = false) {
+            this.applyTransformToEditor((text) => {
+                const normalized = this.normalizeToPlain(text);
+                return styleName ? this.transform(normalized, this.variants[styleName]) : normalized;
+            }, applyOnAllWhenNoSelection);
         },
         applyStyleToSelection(styleName) {
             this.replaceSelection(styleName);
         },
-        removeFormatFromSelection() {
-            this.replaceSelection();
+        applyStyleShortcut(styleName, applyOnAllWhenNoSelection = false) {
+            this.applyTransformToEditor((text) => {
+                const normalized = this.normalizeToPlain(text);
+                return this.transform(normalized, this.variants[styleName]);
+            }, applyOnAllWhenNoSelection);
         },
-
-
+        removeFormatFromSelection() {
+            this.replaceSelection(null, true);
+        },
+        applyCasePreset(presetName) {
+            const preset = this.casePresets[presetName];
+            if (!preset) {
+                return;
+            }
+            this.applyTransformToEditor((text) => applyCasePresetToText(text, presetName), true);
+        }
     }
-}).mount('#app');
+}).mount("#app");

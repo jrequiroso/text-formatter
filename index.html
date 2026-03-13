@@ -2,68 +2,112 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text Formatter by John Req</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"></script>
 </head>
-<body :class="theme">
+<body>
     <div id="app">
         <header>
             <h1>Text Formatter</h1>
-            <button @click="toggleTheme">
-                {{ theme === 'dark' ? '🌙 Dark' : '☀️ Light' }}
+            <button type="button" @click="toggleTheme">
+                {{ theme === 'dark' ? 'Dark' : 'Light' }}
             </button>
         </header>
 
         <div id="tab-controls-container">
-            <button class="tab" :class="{'active': active_tab == 'formatter'}" @click="active_tab = 'formatter'">Text Formatter</button>
-            <button class="tab" :class="{'active': active_tab == 'editor'}" @click="active_tab = 'editor'">Text Editor</button>
+            <button type="button" class="tab" :class="{ active: active_tab === 'formatter' }" @click="active_tab = 'formatter'">Text Formatter</button>
+            <button type="button" class="tab" :class="{ active: active_tab === 'editor' }" @click="active_tab = 'editor'">Text Editor</button>
         </div>
 
-        <div id="text-formatter-container" v-if="active_tab == 'formatter'">
-
+        <div id="text-formatter-container" v-if="active_tab === 'formatter'">
             <div id="text-formatter-input-container">
                 <textarea v-model="input" spellcheck="false" placeholder="Type something..."></textarea>
             </div>
 
             <div class="output" v-for="(variant, name) in variants" :key="name">
                 <div class="variant-header">
-                    <h5>{{ name }}</h3>
-                    <button @click="copyToClipboard(transform(input, variant), name)">
+                    <h5 :title="name">{{ transform(name, variant) }}</h5>
+                    <button type="button" @click="copyToClipboard(formattedVariants[name], name)">
                         {{ copied === name ? 'Copied!' : 'Copy' }}
                     </button>
                 </div>
-                <pre>{{ transform(input, variant) }}</pre>
-            </div>
-
-        </div>
-
-        <div id="text-editor-container" v-if="active_tab == 'editor'">
-            <div class="toolbar">
-                <button
-                    class="text-format"
-                    v-for="(map, name) in variants"
-                    :key="name"
-                    :value="name"
-                    @click="applyStyleToSelection(name)"
-                >
-                    {{ transform(name, map) }}
-                </button>
-            </div>
-            <div class="toolbar">
-                <button class="text-format" @click="removeFormatFromSelection">Remove Format</button>
-            </div>
-
-            <textarea class="long-editor" v-model="editor_input" spellcheck="false" placeholder="Type and highlight text, then apply style." cols="40"></textarea>
-
-            <div class="toolbar-wide">
-                <button @click="copyToClipboard(editor_input, null, true)">{{ editorCopied ? 'Copied!' : 'Copy' }}</button>
-                <button @click="resetFormatting">Reset all</button>
+                <pre>{{ formattedVariants[name] }}</pre>
             </div>
         </div>
 
+        <div id="text-editor-container" v-if="active_tab === 'editor'">
+            <div class="editor-split">
+                <aside class="editor-section editor-left">
+                    <section class="editor-group">
+                        <h3 class="section-title">Unicode Styles</h3>
+                        <div class="toolbar">
+                            <button
+                                type="button"
+                                class="text-format"
+                                v-for="(map, name) in variants"
+                                :key="name"
+                                :value="name"
+                                @click="applyStyleToSelection(name)"
+                            >
+                                {{ transform(name, map) }}
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="editor-group">
+                        <h3 class="section-title">Case Presets</h3>
+                        <div class="toolbar">
+                            <button
+                                type="button"
+                                class="text-format"
+                                v-for="(preset, name) in casePresets"
+                                :key="name"
+                                @click="applyCasePreset(name)"
+                            >
+                                {{ name }}
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="editor-group">
+                        <h3 class="section-title">Actions</h3>
+                        <div class="editor-actions">
+                            <button type="button" @click="copyToClipboard(editor_input, null, true)">
+                                {{ editorCopied ? 'Copied!' : 'Copy' }}
+                            </button>
+                            <button type="button" class="text-format" @click="removeFormatFromSelection">Remove Format</button>
+                            <button type="button" class="text-format" :disabled="!canUndo" @click="undoEditor">Undo</button>
+                            <button type="button" class="text-format" :disabled="!canRedo" @click="redoEditor">Redo</button>
+                            <button type="button" class="text-format danger" @click="resetFormatting">Reset all</button>
+                        </div>
+                    </section>
+                </aside>
+
+                <section class="editor-section editor-right">
+                    <h3 class="section-title">Editor</h3>
+                    <p class="scope-hint">{{ editorScopeHint }}</p>
+                    <textarea
+                        ref="editorTextarea"
+                        class="long-editor"
+                        v-model="editor_input"
+                        @beforeinput="handleEditorBeforeInput"
+                        @keydown="handleEditorKeydown"
+                        @input="handleEditorInput"
+                        @select="updateSelectionFromEvent"
+                        @mouseup="updateSelectionFromEvent"
+                        @keyup="updateSelectionFromEvent"
+                        spellcheck="false"
+                        placeholder="Type and highlight text, then apply style."
+                        cols="40"
+                    ></textarea>
+                </section>
+            </div>
+        </div>
     </div>
 
+    <script src="formatter-core.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

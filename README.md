@@ -1,48 +1,63 @@
 # Unicode Text Formatter + Editor
 
-A simple web app built with **Vue.js** that lets you transform normal text into stylized Unicode variants — bold, cursive, double-struck, monospace, and more.
-Includes a secondary text editor that can apply these same styles to highlighted text, plus light/dark mode support (saved per session).
+A small Vue 3 web app for converting plain text into styled Unicode variants
+(bold, italic, script, double-struck, monospace, bubble, and more). It also
+includes an editor mode that applies styles to highlighted selections.
 
-🔗 Try it here: https://jrequiroso.github.io/text-formatter/
+Live demo: https://jrequiroso.github.io/text-formatter/
 
----
+## Features
 
-## ✨ Features
+- Unicode formatter with multiple style variants
+- Text editor mode with selection-based formatting
+- Remove-format action for selected text or full text reset
+- Light and dark theme toggle (stored in session storage)
+- One-click copy for each formatted output and editor content
 
-- 🔤 **Unicode Formatter** – Instantly convert text into multiple Unicode font styles.
-- 📝 **Text Editor Mode** – Highlight and apply any style to parts of your text.
-- 🌓 **Dark / Light Mode** – Persists via session storage.
-- 📋 **Copy Buttons** – Quickly copy formatted results or full editor content.
-- 💬 **Font Previews** – Each style button shows a live Unicode preview.
+## Project Structure
 
----
+- `index.html`: app shell and Vue templates
+- `main.js`: transformation logic and Vue app state
+- `style.css`: theme and layout styles
 
-## 🧩 Font Styles Supported
+## Run Locally
 
-| Category | Examples |
-|-----------|-----------|
-| Bold (Serif) | 𝐓𝐡𝐞 𝐪𝐮𝐢𝐜𝐤 𝐛𝐫𝐨𝐰𝐧 𝐟𝐨𝐱 |
-| Italic (Serif) | 𝑇ℎ𝑒 𝑞𝑢𝑖𝑐𝑘 𝑓𝑜𝑥 |
-| Bold Italic (Serif) | 𝑻𝒉𝒆 𝒇𝒐𝒙 |
-| Bold (Sans) | 𝗧𝗵𝗲 𝗳𝗼𝘅 |
-| Italic (Sans) | 𝘛𝘩𝘦 𝘧𝘰𝘹 |
-| Bold Italic (Sans) | 𝙏𝙝𝙚 𝙛𝙤𝙭 |
-| Double-Struck | 𝕋𝕙𝕖 𝕗𝕠𝕩 |
-| Monospace | 𝚃𝚑𝚎 𝚏𝚘𝚡 |
-| Sans Serif | 𝖳𝗁𝖾 𝖿𝗈𝗑 |
-| Script (Cursive) | 𝒯𝒽𝑒 𝒻𝑜𝓍 |
-| Bold Script | 𝓣𝓱𝓮 𝓯𝓸𝔁 |
-| Bubble Text | Ⓣⓗⓔ ⓕⓞⓧ |
-| (More to come…) | |
+Because this is a static site, you can run it with any local HTTP server.
 
----
+Option 1 (Python):
 
-## ⚙️ Setup
+```bash
+python -m http.server 8080
+```
 
-No fancy dependencies — just Vue.
-Clone and open in your browser, or serve locally with a simple dev server.
+Then open `http://localhost:8080`.
 
-## 📄 License
+Option 2 (VS Code Live Server):
 
-MIT — free to use, modify, and build upon.
-Just don’t sell it as “AI-generated Unicode Master 9000™”.
+- Open the project folder
+- Start Live Server from `index.html`
+
+## Build
+
+No build step is required in the current setup.
+
+## Deploy
+
+This project can be deployed to any static host:
+
+- GitHub Pages
+- Netlify
+- Vercel static deployment
+
+For GitHub Pages, publish the repository root (or a dedicated branch/folder)
+as a static site.
+
+## Notes
+
+- Unicode styling is character-map based and may render differently by platform
+  or font.
+- Some Unicode styles do not have native digit equivalents.
+
+## License
+
+MIT

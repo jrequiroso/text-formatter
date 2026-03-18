@@ -33,15 +33,17 @@ createApp({
             });
             return formatted;
         },
-        editorScopeHint() {
-            const selectionHint = this.editorSelectionLength > 0
-                ? `Applies to selected text (${this.editorSelectionLength} chars).`
-                : "No text selected. Case presets and Remove/Reset apply to all text.";
-
-            if (this.activeTypingStyle) {
-                return `${selectionHint} Typing mode: ${this.activeTypingStyle}.`;
+        editorSelectionHint() {
+            if (this.editorSelectionLength > 0) {
+                return `Selection: ${this.editorSelectionLength} chars selected.`;
             }
-            return `${selectionHint} Ctrl+B or Ctrl+I with no selection toggles typing mode.`;
+            return "Selection: none. Case presets and Remove/Reset apply to all text.";
+        },
+        editorTypingHint() {
+            if (this.activeTypingStyle) {
+                return `Typing mode: ${this.activeTypingStyle}.`;
+            }
+            return "Typing mode: off. Use Ctrl+B or Ctrl+I with no selection.";
         },
         canUndo() {
             return this.historyIndex > 0;

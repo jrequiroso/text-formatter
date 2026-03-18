@@ -184,6 +184,13 @@ button:hover {
     margin: 0 0 0.75rem;
     font-size: 0.9rem;
     opacity: 0.85;
+    display: grid;
+    gap: 0.15rem;
+    min-height: 2.8rem;
+}
+
+#text-editor-container .scope-hint-line {
+    margin: 0;
 }
 
 #text-editor-container .editor-right textarea.long-editor {

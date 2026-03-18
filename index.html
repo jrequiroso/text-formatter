@@ -87,7 +87,10 @@
 
                 <section class="editor-section editor-right">
                     <h3 class="section-title">Editor</h3>
-                    <p class="scope-hint">{{ editorScopeHint }}</p>
+                    <div class="scope-hint" aria-live="polite">
+                        <p class="scope-hint-line">{{ editorSelectionHint }}</p>
+                        <p class="scope-hint-line">{{ editorTypingHint }}</p>
+                    </div>
                     <textarea
                         ref="editorTextarea"
                         class="long-editor"

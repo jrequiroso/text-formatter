@@ -19,6 +19,23 @@ Live demo: https://jrequiroso.github.io/text-formatter/
 - Light and dark theme toggle (stored in session storage)
 - One-click copy for each formatted output and editor content
 
+## Usage
+
+Use the **Text Formatter** tab when you want full-output previews. Type or paste
+plain text once, then copy the Unicode variant you need.
+
+Use the **Text Editor** tab when you want to edit a longer block in place:
+
+- Highlight text, then choose a Unicode style to apply it only to the selection.
+- Use case presets to convert selected text, or the full editor text when no
+  text is selected.
+- Use **Remove Format** to normalize styled Unicode text back to plain text.
+- Use **Straight Quotes** to replace curly single and double quotes with straight
+  quotes.
+- Use **Convert Markdown** to clean pasted Markdown into readable text, convert
+  Markdown emphasis to Unicode bold/italic styles, and preserve line breaks.
+- Use undo/redo to move through editor changes.
+
 ## Project Structure
 
 - `index.html`: app shell and Vue templates

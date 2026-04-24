@@ -78,6 +78,8 @@
                                 {{ editorCopied ? 'Copied!' : 'Copy' }}
                             </button>
                             <button type="button" class="text-format" @click="removeFormatFromSelection">Remove Format</button>
+                            <button type="button" class="text-format" @click="replaceCurlyQuotesInEditor">Straight Quotes</button>
+                            <button type="button" class="text-format" @click="cleanMarkdownInEditor">Convert Markdown</button>
                             <button type="button" class="text-format" :disabled="!canUndo" @click="undoEditor">Undo</button>
                             <button type="button" class="text-format" :disabled="!canRedo" @click="redoEditor">Redo</button>
                             <button type="button" class="text-format danger" @click="resetFormatting">Reset all</button>

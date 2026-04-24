@@ -5,8 +5,11 @@ const {
     analyzeStyledText,
     applyCasePresetToText,
     casePresets,
+    cleanMarkdownText,
+    convertMarkdownEmphasis,
     findUniformVariant,
     normalizeToPlainText,
+    replaceCurlyQuotes,
     transformText,
     variantMetadata,
     variants
@@ -71,6 +74,84 @@ test("unknown case presets fail safely and return the original text", () => {
 
     assert.equal(applyCasePresetToText(input, "not-a-real-preset"), input);
     assert.equal(applyCasePresetToText("", "not-a-real-preset"), "");
+});
+
+test("replaceCurlyQuotes converts smart quote pairs to straight quotes", () => {
+    const input = "\u201cHello\u201d and \u2018it\u2019s fine\u2019";
+
+    assert.equal(replaceCurlyQuotes(input), "\"Hello\" and 'it's fine'");
+    assert.equal(replaceCurlyQuotes("Plain quotes stay \"plain\"."), "Plain quotes stay \"plain\".");
+});
+
+test("convertMarkdownEmphasis turns markdown emphasis into unicode styles", () => {
+    const input = "**bold**, *italic*, and ***both***";
+
+    assert.equal(convertMarkdownEmphasis(input), [
+        transformText("bold", variants["Bold (Sans)"]),
+        ", ",
+        transformText("italic", variants["Italic (Sans)"]),
+        ", and ",
+        transformText("both", variants["Bold Italic (Sans)"])
+    ].join(""));
+});
+
+test("cleanMarkdownText keeps readable content and converts markdown emphasis", () => {
+    const input = [
+        "# Heading",
+        "",
+        "This is **bold**, *italic*, `code`, and [a link](https://example.com).",
+        "> Quoted line",
+        "- [x] Done",
+        "- Plain item",
+        "",
+        "```js",
+        "const ok = true;",
+        "```"
+    ].join("\n");
+
+    assert.equal(cleanMarkdownText(input), [
+        transformText("Heading", variants["Bold (Sans)"]),
+        "",
+        "This is " + transformText("bold", variants["Bold (Sans)"]) + ", " + transformText("italic", variants["Italic (Sans)"]) + ", code, and a link.",
+        "Quoted line",
+        "- Done",
+        "- Plain item",
+        "",
+        "const ok = true;"
+    ].join("\n"));
+});
+
+test("cleanMarkdownText preserves pasted line and paragraph breaks", () => {
+    const input = [
+        "# First",
+        "",
+        "",
+        "Line with **bold**",
+        "Next line",
+        "",
+        "",
+        "",
+        "- Item"
+    ].join("\n");
+
+    assert.equal(cleanMarkdownText(input), [
+        transformText("First", variants["Bold (Sans)"]),
+        "",
+        "",
+        "Line with " + transformText("bold", variants["Bold (Sans)"]),
+        "Next line",
+        "",
+        "",
+        "",
+        "- Item"
+    ].join("\n"));
+});
+
+test("cleanMarkdownText converts markdown headings to bold unicode text", () => {
+    assert.equal(
+        cleanMarkdownText("## Section Title ##\nText"),
+        transformText("Section Title", variants["Bold (Sans)"]) + "\nText"
+    );
 });
 
 test("analyzeStyledText and findUniformVariant distinguish styled and plain unhappy paths", () => {

@@ -2,7 +2,9 @@ const { createApp } = Vue;
 const {
     applyCasePresetToText,
     casePresets,
+    cleanMarkdownText,
     normalizeToPlainText,
+    replaceCurlyQuotes,
     transformText,
     variants
 } = TextFormatterCore;
@@ -358,6 +360,12 @@ createApp({
         },
         removeFormatFromSelection() {
             this.replaceSelection(null, true);
+        },
+        replaceCurlyQuotesInEditor() {
+            this.applyTransformToEditor((text) => replaceCurlyQuotes(text), true);
+        },
+        cleanMarkdownInEditor() {
+            this.applyTransformToEditor((text) => cleanMarkdownText(text), true);
         },
         applyCasePreset(presetName) {
             const preset = this.casePresets[presetName];

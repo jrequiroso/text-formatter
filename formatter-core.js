@@ -239,6 +239,49 @@
         }).join("");
     }
 
+    function replaceCurlyQuotes(text) {
+        return (text || "")
+            .replace(/[\u2018\u2019]/g, "'")
+            .replace(/[\u201c\u201d]/g, "\"");
+    }
+
+    function convertMarkdownEmphasis(text) {
+        return (text || "")
+            .replace(/(\*\*\*|___)(?=\S)([\s\S]*?\S)\1/g, function (_, marker, content) {
+                return transformText(content, variants["Bold Italic (Sans)"]);
+            })
+            .replace(/(\*\*|__)(?=\S)([\s\S]*?\S)\1/g, function (_, marker, content) {
+                return transformText(content, variants["Bold (Sans)"]);
+            })
+            .replace(/(\*|_)(?=\S)([^*_]*?\S)\1/g, function (_, marker, content) {
+                return transformText(content, variants["Italic (Sans)"]);
+            });
+    }
+
+    function cleanMarkdownText(text) {
+        const cleaned = (text || "")
+            .replace(/\r\n?/g, "\n")
+            .replace(/(^|\n)```[^\n]*\n/g, "$1")
+            .replace(/\n[ \t]{0,3}```[ \t]*(?=\n|$)/g, "")
+            .replace(/^[ \t]{0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$/gm, "")
+            .replace(/^[ \t]{0,3}#{1,6}[ \t]+(.+)$/gm, function (_, heading) {
+                return transformText(heading.replace(/[ \t]+#+[ \t]*$/, ""), variants["Bold (Sans)"]);
+            })
+            .replace(/^[ \t]{0,3}>[ \t]?/gm, "")
+            .replace(/^[ \t]*[-*+][ \t]+\[[ xX]\][ \t]+/gm, "- ")
+            .replace(/^[ \t]*[-*+][ \t]+/gm, "- ")
+            .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+            .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+            .replace(/\[([^\]]+)\]\[[^\]]*\]/g, "$1")
+            .replace(/^[ \t]*\[[^\]]+\]:[ \t]+\S+.*$/gm, "")
+            .replace(/`([^`\n]+)`/g, "$1")
+            .replace(/~~([\s\S]*?)~~/g, "$1")
+            .replace(/<((?:https?:\/\/|mailto:)[^>\s]+)>/g, "$1")
+            .replace(/[ \t]+\n/g, "\n");
+
+        return convertMarkdownEmphasis(cleaned);
+    }
+
     function analyzeStyledText(text, reverseMap, styledCharIndex) {
         const activeReverseMap = reverseMap || variantMetadata.reverseMap;
         const activeStyledCharIndex = styledCharIndex || variantMetadata.styledCharIndex;
@@ -324,8 +367,11 @@
 
     return {
         buildVariantMetadata: buildVariantMetadata,
+        cleanMarkdownText: cleanMarkdownText,
+        convertMarkdownEmphasis: convertMarkdownEmphasis,
         casePresets: casePresets,
         normalizeToPlainText: normalizeToPlainText,
+        replaceCurlyQuotes: replaceCurlyQuotes,
         transformText: transformText,
         analyzeStyledText: analyzeStyledText,
         applyCasePresetToText: applyCasePresetToText,

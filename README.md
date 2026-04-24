@@ -13,6 +13,8 @@ Live demo: https://jrequiroso.github.io/text-formatter/
 - Case presets for common naming and sentence styles
 - Undo/redo support for editor changes
 - Keyboard shortcuts for bold/italic typing mode in the editor
+- Straight-quotes action for replacing curly single and double quotes
+- Convert-Markdown action for converting Markdown emphasis into Unicode styles
 - Remove-format action for selected text or full text reset
 - Light and dark theme toggle (stored in session storage)
 - One-click copy for each formatted output and editor content

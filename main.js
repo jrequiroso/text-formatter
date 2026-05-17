@@ -9,11 +9,13 @@ const {
     variants
 } = TextFormatterCore;
 
+const textStorage = TextFormatterStorage.createTextStorage(localStorage);
+
 createApp({
     data() {
         return {
-            input: "",
-            editor_input: "",
+            input: textStorage.readFormatterInput(),
+            editor_input: textStorage.readEditorInput(),
             copied: null,
             editorCopied: false,
             theme: sessionStorage.getItem("theme") || "light",
@@ -60,6 +62,14 @@ createApp({
             this.updateSelectionFromTextarea();
             this.pushHistorySnapshot(this.captureEditorSnapshot(), true);
         });
+    },
+    watch: {
+        input(value) {
+            textStorage.writeFormatterInput(value);
+        },
+        editor_input(value) {
+            textStorage.writeEditorInput(value);
+        }
     },
     methods: {
         applyThemeClass() {

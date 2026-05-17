@@ -2,6 +2,6 @@
   "name": "text-formatter",
   "private": true,
   "scripts": {
-    "test": "node test/formatter-core.test.js"
+    "test": "node --test test/*.test.js"
   }
 }
